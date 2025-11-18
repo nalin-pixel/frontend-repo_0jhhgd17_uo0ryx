@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { getBaseUrl, getApiKey, authHeaders } from '../lib/api'
 
 export default function TicketForm({ onCreated }) {
   const [form, setForm] = useState({
@@ -24,13 +25,13 @@ export default function TicketForm({ onCreated }) {
     setSuccess('')
 
     try {
-      const baseUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8000'
+      const baseUrl = getBaseUrl()
       const res = await fetch(`${baseUrl}/api/tickets`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...authHeaders() },
         body: JSON.stringify(form)
       })
-      if (!res.ok) throw new Error('Failed to create ticket')
+      if (!res.ok) throw new Error('Failed to create ticket. Ensure API key is set in header settings above.')
       const data = await res.json()
       setSuccess('Ticket submitted successfully')
       setForm({ submitter_name: '', submitter_email: '', subject: '', message: '', priority: 'medium' })

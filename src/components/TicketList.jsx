@@ -1,25 +1,37 @@
 import { useEffect, useState } from 'react'
+import { getBaseUrl, authHeaders } from '../lib/api'
 
 export default function TicketList({ onSelect }) {
   const [tickets, setTickets] = useState([])
   const [loading, setLoading] = useState(true)
+  const [status, setStatus] = useState('')
 
   const load = async () => {
     setLoading(true)
-    const baseUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8000'
-    const res = await fetch(`${baseUrl}/api/tickets`)
+    const baseUrl = getBaseUrl()
+    const qs = new URLSearchParams()
+    if (status) qs.set('status', status)
+    const res = await fetch(`${baseUrl}/api/tickets?${qs.toString()}`, { headers: authHeaders() })
     const data = await res.json()
     setTickets(data.items || [])
     setLoading(false)
   }
 
-  useEffect(() => { load() }, [])
+  useEffect(() => { load() }, [status])
 
   return (
     <div className="bg-slate-800/40 border border-slate-700 rounded-xl p-4">
       <div className="flex items-center justify-between mb-3">
         <h3 className="text-white font-semibold">Recent Tickets</h3>
-        <button onClick={load} className="text-xs text-blue-300 hover:text-blue-200">Refresh</button>
+        <div className="flex items-center gap-2">
+          <select value={status} onChange={(e)=>setStatus(e.target.value)} className="text-xs bg-slate-900/70 text-slate-200 border border-slate-700 rounded px-2 py-1">
+            <option value="">All</option>
+            <option value="open">Open</option>
+            <option value="pending">Pending</option>
+            <option value="closed">Closed</option>
+          </select>
+          <button onClick={load} className="text-xs text-blue-300 hover:text-blue-200">Refresh</button>
+        </div>
       </div>
       {loading ? (
         <p className="text-slate-400 text-sm">Loading...</p>
