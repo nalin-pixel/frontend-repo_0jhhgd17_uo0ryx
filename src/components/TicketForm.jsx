@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react'
-import { getBaseUrl, getApiKey, authHeaders } from '../lib/api'
+import { useState } from 'react'
+import { getBaseUrl, authHeaders } from '../lib/api'
 
 export default function TicketForm({ onCreated }) {
   const [form, setForm] = useState({
@@ -31,7 +31,7 @@ export default function TicketForm({ onCreated }) {
         headers: { 'Content-Type': 'application/json', ...authHeaders() },
         body: JSON.stringify(form)
       })
-      if (!res.ok) throw new Error('Failed to create ticket. Ensure API key is set in header settings above.')
+      if (!res.ok) throw new Error('Failed to create ticket. Please sign in and try again.')
       const data = await res.json()
       setSuccess('Ticket submitted successfully')
       setForm({ submitter_name: '', submitter_email: '', subject: '', message: '', priority: 'medium' })
